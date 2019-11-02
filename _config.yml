@@ -97,4 +97,4 @@ theme: landscape
 deploy:
   type: git
   repo: https://github.com/beiluonever/doc
-  branch: master
+  branch: hexo-auto-deploy
