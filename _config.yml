@@ -100,5 +100,5 @@ deploy:
   branch: hexo-auto-deploy
 menu:
   home: /
-  archives: /archives
-  categories: /categories
+  archives: /archives/
+  categories: /categories/
