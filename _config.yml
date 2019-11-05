@@ -99,7 +99,7 @@ deploy:
   repo: https://github.com/beiluonever/doc
   branch: hexo-auto-deploy
 menu:
-  home: /
-  archives: /archives
-  categories: /categories
-  tags: /tags
+#  home: 
+#  archives: /archives/
+#  categories: /categories/
+#  tags: /tags/
