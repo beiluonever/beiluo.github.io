@@ -8,6 +8,7 @@ branches:
     - master # build master branch only
 script:
   - hexo generate # generate static files
+  - echo "echo cname file"
   - echo "$CNAME" > public/CNAME
 deploy:
   provider: pages
