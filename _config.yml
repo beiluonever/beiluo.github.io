@@ -3,7 +3,7 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Blog
+title: beiluo's Blog
 subtitle:
 description:
 keywords:
@@ -102,3 +102,4 @@ menu:
   home: /
   archives: /archives
   categories: /categories
+  tags: /tags
