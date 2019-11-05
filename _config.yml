@@ -54,7 +54,7 @@ highlight:
 # per_page: Posts displayed per page. (0 = disable pagination)
 # order_by: Posts order. (Order by date descending by default)
 index_generator:
-  path: ''
+  path: /
   per_page: 10
   order_by: -date
 
@@ -99,7 +99,7 @@ deploy:
   repo: https://github.com/beiluonever/doc
   branch: hexo-auto-deploy
 menu:
-#  home: 
-#  archives: /archives/
-#  categories: /categories/
-#  tags: /tags/
+  home: /
+  archives: /archives
+  categories: /categories
+  tags: /tags
