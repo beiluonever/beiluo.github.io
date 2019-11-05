@@ -7,14 +7,14 @@ title: Blog
 subtitle:
 description:
 keywords:
-author: Zhenpeng Wang
+author: 北落never
 language: en
 timezone:
 
 # URL
-## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
+## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and ooot as '/child/'
 url: http://beiluonever.github.io
-root: /doc
+root: /doc/
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
@@ -104,8 +104,8 @@ deploy:
 # Header
 
 menu:
-  主页: /
-  随笔: /tags/随笔/
+  主页: /doc/
+  #随笔: /tags/随笔/
 
 # SubNav
 subnav:
@@ -126,7 +126,7 @@ subnav:
   #twitter: "#"
   #linkedin: "#"
 
-rss: /atom.xml
+#rss: /atom.xml
 
 # 是否需要修改 root 路径
 # 如果您的网站存放在子目录中，例如 http://yoursite.com/blog，
