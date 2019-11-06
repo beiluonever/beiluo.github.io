@@ -2,11 +2,12 @@
 title: Spring Boot中使用quartz定时任务并进行事务管理
 date: 2019-11-05 09:39:47
 categories: 
-- web前端
+- Java
 tags: 
 - "Spring Boot"
 - quartz
 - 事务
+
 ---
 ## 在Spring Boot2.0中集成Quartz
 考虑到业务中需要对任务进行实时修改，因此本文的配置方式可能较为复杂
@@ -445,4 +446,121 @@ CREATE TABLE `quartz_config`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 66 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 ```
+编写业务代码implements org.quartz.Job
+## 事务无效问题出现
+在run方法上添加@Transactional注解，发现事务没有生效，伪代码如下：
+```.java
+@Transactional(rollbackFor = Exception.class)
+public void run(){
+	userService.remove();
+	int a = 1/0;
+	userService.saveBatch(saveUsers);
+}
+```
 
+### 问题排查
+
+1. 检查事务注解是否添加，是否启用
+   - ~~Spring Boot的@SpringBootApplication默认添加了@EnableTransactionManagement~~ 添加了@EnableTransactionManagement无效
+2. 了解到事务是对~~@Service注解~~ Spring托管的类 下public 方法进行切入，检查了当前类是否被Spring托管
+   - 已经使用@Component ，切换为@Service，依旧没有效果
+
+#### 启用日志查看原因
+
+在application.yaml或applicationproperties添加Debug
+
+```.yaml
+logging:
+  level:
+    org.springframework.jdbc.datasource: debug
+```
+
+观察日志发现没有开启create transaction，翻看源码发现在Job.run()方法调用方中，使用try catch对异常进行了捕捉。
+
+```.java
+public class JobRunShell extends SchedulerListenerSupport implements Runnable {
+	……
+	public void run() {
+			……
+			// execute the job
+            try {
+                log.debug("Calling execute on job " + jobDetail.getKey());
+                job.execute(jec);
+                endTime = System.currentTimeMillis();
+            } catch (JobExecutionException jee) {
+                endTime = System.currentTimeMillis();
+                jobExEx = jee;
+                getLog().info("Job " + jobDetail.getKey() +
+                " threw a JobExecutionException: ", jobExEx);
+            } catch (Throwable e) {
+                endTime = System.currentTimeMillis();
+                getLog().error("Job " + jobDetail.getKey() +
+                " threw an unhandled Exception: ", e);
+                SchedulerException se = new SchedulerException(
+                "Job threw an unhandled exception.", e);
+                qs.notifySchedulerListenersError("Job ("
+                + jec.getJobDetail().getKey()
+                + " threw an exception.", se);
+                jobExEx = new JobExecutionException(se, false);
+            }
+	}
+}
+```
+
+**因此通常的事务处理会被此处拦截掉，所以要把方法从excute中拿出来。**
+
+这里大致进行了如下修改：
+
+```.java
+
+public void execute(){
+	userSync()
+}
+
+@Transactional(rollbackFor = Exception.class)
+public void userSync(){
+	userService.remove();
+	int a = 1/0;
+	userService.saveBatch(saveUsers);
+}
+```
+
+实际测试依旧无效，这里涉及到另一个知识点：
+
+**Spring的Aop原理：默认使用Cglib方式做切面，只能在不同类中调用才能正常使用到Spring提供的切面服务**
+
+最后修改方案为把具体业务抽取到另一个类中，在Job类中注入这个类调用方法。
+
+大致如下：
+
+```.java
+public class UserSyncJob implements Job {
+	@Autowired
+    UserSyncServiceImpl syncService;
+	
+    public void execute(){
+        syncService.cleanUserAndSync()
+    }
+}
+
+@Compoment//@Service 没有明显区别
+public class UserSyncServiceImpl {
+
+	@Transactional(rollbackFor = Exception.class)
+    public void cleanUserAndSync() {
+    	userService.remove();
+        userService.saveBatch(saveUsers);
+    }
+}
+```
+
+
+
+添加中间类后的日志,删减了部分
+
+ 2019-11-06 11:25:00.023 DEBUG 14228 --- [ryBean_Worker-1] o.s.j.d.DataSourceTransactionManager     : **Creating new transaction with name [UserSyncServiceImpl.cleanUserAndSync]:** PROPAGATION_REQUIRED,ISOLATION_DEFAULT,-java.lang.Exception 
+2019-11-06 11:25:00.058 DEBUG 14228 --- [ryBean_Worker-1] o.s.j.d.DataSourceTransactionManager     : Acquired Connection [HikariProxyConnection@406789872 wrapping com.mysql.cj.jdbc.ConnectionImpl@1c9d21d9] for JDBC transaction
+2019-11-06 11:25:00.061 DEBUG 14228 --- [ryBean_Worker-1] o.s.j.d.DataSourceTransactionManager     : Switching JDBC Connection [HikariProxyConnection@406789872 wrapping com.mysql.cj.jdbc.ConnectionImpl@1c9d21d9] to manual commit
+2019-11-06 11:25:01.038 DEBUG 14228 --- [ryBean_Worker-1] o.s.j.d.DataSourceTransactionManager     : **Initiating transaction rollback**
+2019-11-06 11:25:01.038 DEBUG 14228 --- [ryBean_Worker-1] o.s.j.d.DataSourceTransactionManager     : Rolling back JDBC transaction on Connection [HikariProxyConnection@406789872 wrapping com.mysql.cj.jdbc.ConnectionImpl@1c9d21d9]
+2019-11-06 11:25:01.226 DEBUG 14228 --- [ryBean_Worker-1] o.s.j.d.DataSourceTransactionManager     : Releasing JDBC Connection [HikariProxyConnection@406789872 wrapping com.mysql.cj.jdbc.ConnectionImpl@1c9d21d9] after transaction
