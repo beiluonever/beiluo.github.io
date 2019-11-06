@@ -97,7 +97,7 @@ theme: next
 deploy:
   type: git
   repo: https://github.com/beiluonever/doc
-  branch: hexo-auto-deploy
+  branch: gh-pages
 
 menu:
   home: /
