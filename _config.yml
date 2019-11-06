@@ -98,6 +98,7 @@ deploy:
   type: git
   repo: https://github.com/beiluonever/doc
   branch: hexo-auto-deploy
+
 menu:
   home: /
   archives: /archives
