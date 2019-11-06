@@ -11,7 +11,7 @@ tags:
 ## 在Spring Boot2.0中集成Quartz
 考虑到业务中需要对任务进行实时修改，因此本文的配置方式可能较为复杂
 如果是想了解事务为何不生效的，先告诉结论：将Job中的RUN方法，提取成一个Class的方法，并在此方法上加@Transactional，在job.run中调用。具体原因请参考下文
-###以Spring Boot2.19版本为例，添加POM依赖：
+### 以Spring Boot2.19版本为例，添加POM依赖：
 ```
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -27,7 +27,7 @@ tags:
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 ```
-###添加各种ConfigBean
+### 添加各种ConfigBean
 QuartzConfig.java:
 ```
 import org.quartz.Scheduler;
