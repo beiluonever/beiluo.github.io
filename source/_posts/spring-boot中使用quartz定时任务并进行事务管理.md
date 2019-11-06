@@ -1,7 +1,12 @@
 ---
 title: Spring Boot中使用quartz定时任务并进行事务管理
 date: 2019-11-05 09:39:47
-tags: "spring boot","quartz","事务"
+categories: 
+- web前端
+tags: 
+- "Spring Boot"
+- quartz
+- 事务
 ---
 ## 在Spring Boot2.0中集成Quartz
 考虑到业务中需要对任务进行实时修改，因此本文的配置方式可能较为复杂
