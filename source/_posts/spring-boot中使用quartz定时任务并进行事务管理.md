@@ -28,6 +28,7 @@ tags:
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 ```
+<!-- more -->
 ### 添加各种ConfigBean
 QuartzConfig.java:
 ```
