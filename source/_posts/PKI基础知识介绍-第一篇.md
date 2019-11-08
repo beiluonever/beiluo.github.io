@@ -10,7 +10,7 @@ tags:
 
 > A **public key infrastructure** (**PKI**) is a set of roles, policies, and procedures needed to create, manage, distribute, use, store & revoke [digital certificates](https://en.wikipedia.org/wiki/Digital_certificates "Digital certificates") and manage public-key encryption. The purpose of a PKI is to facilitate the secure electronic transfer of information for a range of network activities such as e-commerce, internet banking and confidential email. It is required for activities where simple passwords are an inadequate authentication method and more rigorous proof is required to confirm the identity of the parties involved in the communication and to validate the information being transferred.
 > 一个**公共密钥基础设施**（**PKI**）是一组角色，策略，以及创建，管理，分发所需的程序，使用，储存和吊销的[数字证书](https://en.wikipedia.org/wiki/Digital_certificates "数字证书")和管理公共密钥加密。PKI的目的是促进电子商务，网上银行和机密电子邮件等一系列网络活动的信息安全电子传输。对于简单密码认证方法不充分的活动，需要更严格的证据来确认通信中涉及的各方的身份并验证所传输的信息。
-
+	
 上文为WIKI对于PKI的解释，简单来说，PKI是一个基础设施，使用**数字证书、密钥加密等措施来保障通信中的信息安全和身份安全。**从我个人浅显的理解来说，PKI就是解决如何证明我是我、如何保证我传给A的东西其他人看不到只有A能看，而且A还能确信这是我发的。
 
 # PKI由什么组成
