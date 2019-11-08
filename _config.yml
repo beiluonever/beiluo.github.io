@@ -87,6 +87,8 @@ include:
 exclude:    
 ignore:
 
+avatar: /images/avatar.png
+
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
