@@ -558,9 +558,9 @@ public class UserSyncServiceImpl {
 
 添加中间类后的日志,删减了部分
 
- 2019-11-06 11:25:00.023 DEBUG 14228 --- [ryBean_Worker-1] o.s.j.d.DataSourceTransactionManager     : **Creating new transaction with name [UserSyncServiceImpl.cleanUserAndSync]:** PROPAGATION_REQUIRED,ISOLATION_DEFAULT,-java.lang.Exception 
-2019-11-06 11:25:00.058 DEBUG 14228 --- [ryBean_Worker-1] o.s.j.d.DataSourceTransactionManager     : Acquired Connection [HikariProxyConnection@406789872 wrapping com.mysql.cj.jdbc.ConnectionImpl@1c9d21d9] for JDBC transaction
-2019-11-06 11:25:00.061 DEBUG 14228 --- [ryBean_Worker-1] o.s.j.d.DataSourceTransactionManager     : Switching JDBC Connection [HikariProxyConnection@406789872 wrapping com.mysql.cj.jdbc.ConnectionImpl@1c9d21d9] to manual commit
-2019-11-06 11:25:01.038 DEBUG 14228 --- [ryBean_Worker-1] o.s.j.d.DataSourceTransactionManager     : **Initiating transaction rollback**
-2019-11-06 11:25:01.038 DEBUG 14228 --- [ryBean_Worker-1] o.s.j.d.DataSourceTransactionManager     : Rolling back JDBC transaction on Connection [HikariProxyConnection@406789872 wrapping com.mysql.cj.jdbc.ConnectionImpl@1c9d21d9]
-2019-11-06 11:25:01.226 DEBUG 14228 --- [ryBean_Worker-1] o.s.j.d.DataSourceTransactionManager     : Releasing JDBC Connection [HikariProxyConnection@406789872 wrapping com.mysql.cj.jdbc.ConnectionImpl@1c9d21d9] after transaction
+> *2019-11-06 11:25:00.023 DEBUG 14228 --- [ryBean_Worker-1] o.s.j.d.DataSourceTransactionManager     : **Creating new transaction with name [UserSyncServiceImpl.cleanUserAndSync]:** PROPAGATION_REQUIRED,ISOLATION_DEFAULT,-java.lang.Exception 
+> 2019-11-06 11:25:00.058 DEBUG 14228 --- [ryBean_Worker-1] o.s.j.d.DataSourceTransactionManager     : Acquired Connection [HikariProxyConnection@406789872 wrapping com.mysql.cj.jdbc.ConnectionImpl@1c9d21d9] for JDBC transaction
+> 2019-11-06 11:25:00.061 DEBUG 14228 --- [ryBean_Worker-1] o.s.j.d.DataSourceTransactionManager     : Switching JDBC Connection [HikariProxyConnection@406789872 wrapping com.mysql.cj.jdbc.ConnectionImpl@1c9d21d9] to manual commit
+> 2019-11-06 11:25:01.038 DEBUG 14228 --- [ryBean_Worker-1] o.s.j.d.DataSourceTransactionManager     : **Initiating transaction rollback**
+> 2019-11-06 11:25:01.038 DEBUG 14228 --- [ryBean_Worker-1] o.s.j.d.DataSourceTransactionManager     : Rolling back JDBC transaction on Connection [HikariProxyConnection@406789872 wrapping com.mysql.cj.jdbc.ConnectionImpl@1c9d21d9]
+> 2019-11-06 11:25:01.226 DEBUG 14228 --- [ryBean_Worker-1] o.s.j.d.DataSourceTransactionManager     : Releasing JDBC Connection [HikariProxyConnection@406789872 wrapping com.mysql.cj.jdbc.ConnectionImpl@1c9d21d9] after transaction*
