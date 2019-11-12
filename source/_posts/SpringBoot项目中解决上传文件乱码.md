@@ -1,7 +1,11 @@
 ---
 title: SpringBoot项目中解决上传文件乱码
 date: 2019-11-12 11:07:14
-tags:
+tags: 
+- SpringBoot
+- MultipartFile
+categories: 
+- Java
 ---
 
 ## SpringBoot项目中MultipartFile接受数据文件乱码原因
@@ -27,6 +31,34 @@ MultipartFile 在接收数据时会以系统默认的编码解码上传数据，
    
 
 2. 添加配置类
+
+   ```.java
+   @Configuration
+   public class ConfigurerAdapter extends WebMvcConfigurerAdapter {
+   
+       @Bean
+       public HttpMessageConverter<String> responseBodyConverter() {
+           StringHttpMessageConverter converter = new StringHttpMessageConverter(
+                   Charset.forName("UTF-8"));
+           return converter;
+       }
+   
+       @Override
+       public void configureMessageConverters(
+               List<HttpMessageConverter<?>> converters) {
+           super.configureMessageConverters(converters);
+           converters.add(responseBodyConverter());
+       }
+   
+       @Override
+       public void configureContentNegotiation(
+               ContentNegotiationConfigurer configurer) {
+           configurer.favorPathExtension(false);
+       }
+   }
+   ```
+
+   
 
 3. 获取文件名时添加编码转换
 
@@ -57,3 +89,11 @@ $ curl -v -H "Transfer-Encoding: chunked" \
  */
 private String servletPath = "/zuul";
 ```
+
+按照官网说明，可以将请求发送到/zuul/项目原转发路径/*，但是一般项目后期，如果要修改请求路径较为复杂。这里可以将所有请求都走此过滤。设置如下：
+
+```.yaml
+zuul:
+	servlet-path: /
+```
+
