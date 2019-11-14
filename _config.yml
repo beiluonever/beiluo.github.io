@@ -116,6 +116,6 @@ auto_excerpt:
   length: 150
 
 sitemap:
-path: sitemap.xml
+  path: sitemap.xml
 baidusitemap:
-path: baidusitemap.xml
+  path: baidusitemap.xml
