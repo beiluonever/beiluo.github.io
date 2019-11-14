@@ -114,3 +114,8 @@ social:
 auto_excerpt:
   enable: true
   length: 150
+
+sitemap:
+path: sitemap.xml
+baidusitemap:
+path: baidusitemap.xml
