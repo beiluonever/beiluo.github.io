@@ -4,4 +4,4 @@ date: 2019-11-06 16:03:41
 type: "about"
 comments: false
 ---
-Stay hungry,Stay foolish
+<center>Stay hungry,Stay foolish</center>
