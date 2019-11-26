@@ -25,6 +25,6 @@
     "hexo-renderer-marked": "^2.0.0",
     "hexo-renderer-stylus": "^1.1.0",
     "hexo-server": "^1.0.0",
-    "live2d-widget-model-tororo": "^1.0.5"
+    "live2d-widget-model-koharu": "^1.0.5"
   }
 }
