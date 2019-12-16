@@ -1,2 +1,2 @@
 个人博客，请勿fork
-[blog](https://blog.pyma.net)
+[blog地址](https://blog.pyma.net)
