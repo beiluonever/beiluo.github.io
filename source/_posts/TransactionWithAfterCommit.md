@@ -30,6 +30,7 @@ categories:
    	发现被调用，但是查看缓存后没有被执行
    2. 了解afterCommit如何被处理
    3. 尝试debug transactionManager 执行部分Code，确定整体流程
+   <!-- more -->
    根据debug和阅读代码可以发现
    TransactionSynchronizationManager 中存储了所有当前的transaction信息，registerSynchronization就会把匿名类加入到set中。
    private static final ThreadLocal<Set<TransactionSynchronization>> synchronizations =
