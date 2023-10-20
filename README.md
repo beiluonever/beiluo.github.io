@@ -1,1 +1,1 @@
-[blog](https://blog.pyma.net)
+[blog](https://blog.ohmyssh.top)

@@ -11,7 +11,7 @@ categories:
 # Java线上问题排查经验集合
 ## high cpu
 1. 使用Top -H 查看CPU占用较高的线程ID。如：
-![top-H](https://blog.pyma.net/images/top-h.png)
+![top-H](https://blog.ohmyssh.top/images/top-h.png)
 ```
 jps -l # find the right process ,if pid is 1
 top -H -p 1 # find the top thread CPU usage in this process. different linux commond may different. 
@@ -88,7 +88,7 @@ executor_queue_remaining_tasks{name="applicationTaskExecutor",} 2.147483647E9
 ```kubectl cp  namespace/pod-id:/tmp/dump.hprof  /path/localfile```  
 之后可以使用[MAT](https://www.eclipse.org/mat/)或者[jifa](https://github.com/eclipse/jifa)进行dump文件分析
 
-![MAT](https://blog.pyma.net/images/heap-mat.png)
+![MAT](https://blog.ohmyssh.top/images/heap-mat.png)
 MAT常用的方法有
 + Histogram: 列出所有类的实例数量
 + Dominator Tree: 列出占用最大的对象，并提供path to GC roots来确定为何没有被释放
@@ -118,4 +118,4 @@ jcmd 18137 JFR.stop name=demon
 ```
 获取到jfr文件后可以使用JMC或者[ZMC](https://www.azul.com/products/components/azul-mission-control/)进行分析
 信息会包括Thread/memory/GC/JVM config等各种信息，并且可以对我们关心的时间点进行详细分析。
-![ZMC](https://blog.pyma.net/images/jflight-zmc.png)
+![ZMC](https://blog.ohmyssh.top/images/jflight-zmc.png)

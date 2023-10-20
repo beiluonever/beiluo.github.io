@@ -13,5 +13,5 @@ typora-root-url: ..\images
 前提：一个使用SpringBoot1.5.6+OAth2 (2.0版本)验证的权限系统
 现象：在登录过程中，输入错误的用户名会导致弹出www basic的验证框，如下图
 
-![alert-baic-auth](https://blog.pyma.net/images/alert-baic-auth.png)
+![alert-baic-auth](https://blog.ohmyssh.top/images/alert-baic-auth.png)
 
