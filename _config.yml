@@ -13,7 +13,7 @@ timezone:
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and ooot as '/child/'
-url: http://blog.ohmyssh.top
+url: https://blog.ohmyssh.top
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
@@ -84,7 +84,7 @@ pagination_dir: page
 # Include / Exclude file(s)
 ## include:/exclude: options only apply to the 'source/' folder
 include:
-exclude:    
+exclude:
 ignore:
 
 avatar: /images/avatar.png
@@ -98,7 +98,7 @@ theme: next
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo: git@github.com:beiluonever/doc.git 
+  repo: git@github.com:beiluonever/doc.git
   branch: gh-pages
 
 menu:
@@ -106,11 +106,11 @@ menu:
   archives: /archives
   categories: /categories
   tags: /tags
-  
+
 social:
   GitHub: https://github.com/beiluonever
   E-Mail: mailto:@beiluo1994@gmail.com
-  
+
 auto_excerpt:
   enable: true
   length: 150
