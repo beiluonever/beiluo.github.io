@@ -2,7 +2,10 @@
 title: Git管理规范
 date: 2023-12-05 08:55:43
 tags:
+  - Git
+  - Specification
 categories:
+  - 杂项
 ---
 
 ## 分支管理
@@ -13,6 +16,8 @@ categories:
 **hotfix-yyyymmdd**  分支    线上环境紧急 bug 修复版本，分支从 release 或者 tag 中 checkout 出来，进行的修改需要同步 merge 进入 master/release 分支。master  分支使用 cherrypick 从 hotfix 中拿取指定的 commit。
 
 **tag:**  对于每次版本发布进行 tag 标记，merge 进 release 时，应当自动 tag，记录为版本号
+
+<!-- more -->
 
 **开发流程示例：**
 
