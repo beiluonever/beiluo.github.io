@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.ohmyssh.top","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="在Java中如何实现调用命令行首先申明，不推荐使用此方式，我了解到的情况如下：执行过程是首先克隆一条和当前虚拟机拥有一样环境变量的进程，再用这个新的进程执行外部命令，最后退出这个进程。因此，频繁的创建对CPU和内存的消耗很大基础代码实现： 1234567891011121314151617181920&#x2F;** * run command with one command * * @param com">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java调用linux命令行基础使用">
+<meta property="og:url" content="https://blog.ohmyssh.top/2019/12/02/Java%E8%B0%83%E7%94%A8linux%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="Beiluo&#39;s Blog">
+<meta property="og:description" content="在Java中如何实现调用命令行首先申明，不推荐使用此方式，我了解到的情况如下：执行过程是首先克隆一条和当前虚拟机拥有一样环境变量的进程，再用这个新的进程执行外部命令，最后退出这个进程。因此，频繁的创建对CPU和内存的消耗很大基础代码实现： 1234567891011121314151617181920&#x2F;** * run command with one command * * @param com">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-12-02T21:29:07.000Z">
+<meta property="article:modified_time" content="2024-05-20T01:15:40.127Z">
+<meta property="article:author" content="北落never">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="LinuxShell">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://blog.ohmyssh.top/2019/12/02/Java%E8%B0%83%E7%94%A8linux%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.ohmyssh.top/2019/12/02/Java%E8%B0%83%E7%94%A8linux%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8/","path":"2019/12/02/Java调用linux命令行基础使用/","title":"Java调用linux命令行基础使用"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Java调用linux命令行基础使用 | Beiluo's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Beiluo's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%A8Java%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E8%B0%83%E7%94%A8%E5%91%BD%E4%BB%A4%E8%A1%8C"><span class="nav-number">1.</span> <span class="nav-text">在Java中如何实现调用命令行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9C%80%E8%A6%81%E8%80%83%E8%99%91%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">需要考虑的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">3.</span> <span class="nav-text">注意事项</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">北落never</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.ohmyssh.top/2019/12/02/Java%E8%B0%83%E7%94%A8linux%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="北落never">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Beiluo's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Java调用linux命令行基础使用 | Beiluo's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Java调用linux命令行基础使用
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-12-02 21:29:07" itemprop="dateCreated datePublished" datetime="2019-12-02T21:29:07+00:00">2019-12-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2024-05-20 01:15:40" itemprop="dateModified" datetime="2024-05-20T01:15:40+00:00">2024-05-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Java%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">Java基础</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h3 id="在Java中如何实现调用命令行"><a href="#在Java中如何实现调用命令行" class="headerlink" title="在Java中如何实现调用命令行"></a>在Java中如何实现调用命令行</h3><p>首先申明，不推荐使用此方式，我了解到的情况如下：执行过程是首先克隆一条和当前虚拟机拥有一样环境变量的进程，再用这个新的进程执行外部命令，最后退出这个进程。因此，频繁的创建对CPU和内存的消耗很大<br>基础代码实现：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * run command with one command</span><br><span class="line"> *</span><br><span class="line"> * @param command command</span><br><span class="line"> * @return command out</span><br><span class="line"> */</span><br><span class="line">public static String run(String command) &#123;</span><br><span class="line">    ProcessBuilder processBuilder = new ProcessBuilder();</span><br><span class="line">    processBuilder.command(&quot;bash&quot;, &quot;-c&quot;, command);</span><br><span class="line">    String out = &quot;&quot;;</span><br><span class="line">    try &#123;</span><br><span class="line">        log.info(String.join(&quot; &quot;, processBuilder.command()));</span><br><span class="line">        Process process = processBuilder.start();</span><br><span class="line">        out = IOUtils.toString(process.getInputStream());</span><br><span class="line">    &#125; catch (IOException e) &#123;</span><br><span class="line">        log.error(&quot;run command error &#123;&#125;&quot;, e.getMessage());</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">    return out;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="需要考虑的问题"><a href="#需要考虑的问题" class="headerlink" title="需要考虑的问题"></a>需要考虑的问题</h3><ol>
+<li>异常数据的输出，是否监控，以及如何监控，之前的做法是新启动一个线程去监听</li>
+<li>使用此方法时，性能会有较大的损耗，如何改善，考虑去除所有监控进行性能对比</li>
+<li>在执行命令出现异常时的异常处理如何。<br>以上几点我会在后续的编码中考虑解决，可以关注我的github的demo项目 <a target="_blank" rel="noopener" href="https://github.com/beiluonever/demo-collection/tree/master/process">Git地址</a></li>
+</ol>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><ol>
+<li>命令无权限<br>考虑文件的可执行权限</li>
+<li>等待shell返回<br>在process.waitFor()前读取缓冲区</li>
+<li>命令不存在<br>需要将你的程序在bin下添加软链接<br>以上参考了<a target="_blank" rel="noopener" href="https://yq.aliyun.com/articles/2362">https://yq.aliyun.com/articles/2362</a> 感谢</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/LinuxShell/" rel="tag"># LinuxShell</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/11/21/SpringCloud-Zuul%E7%BD%91%E5%85%B3%E5%9C%A8%E8%BF%87%E6%BB%A4%E5%99%A8%E4%B8%AD%E6%B7%BB%E5%8A%A0%E6%88%96%E4%BF%AE%E6%94%B9Request%E5%8F%82%E6%95%B0/" rel="prev" title="SpringCloud Zuul网关在Filter中添加或修改Request参数">
+                  <i class="fa fa-angle-left"></i> SpringCloud Zuul网关在Filter中添加或修改Request参数
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/12/15/MySQL8%E9%A9%B1%E5%8A%A8%E9%80%86%E5%90%91%E5%B7%A5%E7%A8%8B%E6%88%96Flowable%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%E6%88%96Mybatis%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/" rel="next" title="MySQL8驱动逆向工程或Flowable代码生成或Mybatis代码生成问题解决">
+                  MySQL8驱动逆向工程或Flowable代码生成或Mybatis代码生成问题解决 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">北落never</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"}});</script></body>
+</html>

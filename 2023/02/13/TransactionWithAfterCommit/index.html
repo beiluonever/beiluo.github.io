@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.ohmyssh.top","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="PlatformTransactionManager&amp;TransactionAwareCacheDecorator 源码解析+问题排查1.问题现象在原有使用中发现原有删除缓存的操作未能正常执行。原code 如下: 12345678910111213@Transactionalvoid function&amp;#123;db_action();db_action2();&#x2F;&#x2F;在上方事务提交后，进行缓">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PlatformTransactionManager&amp;TransactionAwareCacheDecorator 源码解析+问题排查">
+<meta property="og:url" content="https://blog.ohmyssh.top/2023/02/13/TransactionWithAfterCommit/index.html">
+<meta property="og:site_name" content="Beiluo&#39;s Blog">
+<meta property="og:description" content="PlatformTransactionManager&amp;TransactionAwareCacheDecorator 源码解析+问题排查1.问题现象在原有使用中发现原有删除缓存的操作未能正常执行。原code 如下: 12345678910111213@Transactionalvoid function&amp;#123;db_action();db_action2();&#x2F;&#x2F;在上方事务提交后，进行缓">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-02-13T14:41:31.000Z">
+<meta property="article:modified_time" content="2024-05-20T01:15:40.127Z">
+<meta property="article:author" content="北落never">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="Spring">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://blog.ohmyssh.top/2023/02/13/TransactionWithAfterCommit/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.ohmyssh.top/2023/02/13/TransactionWithAfterCommit/","path":"2023/02/13/TransactionWithAfterCommit/","title":"PlatformTransactionManager&TransactionAwareCacheDecorator 源码解析+问题排查"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>PlatformTransactionManager&TransactionAwareCacheDecorator 源码解析+问题排查 | Beiluo's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Beiluo's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#PlatformTransactionManager-amp-TransactionAwareCacheDecorator-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="nav-number">1.</span> <span class="nav-text">PlatformTransactionManager&amp;TransactionAwareCacheDecorator 源码解析+问题排查</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E9%97%AE%E9%A2%98%E7%8E%B0%E8%B1%A1"><span class="nav-number">1.1.</span> <span class="nav-text">1.问题现象</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">北落never</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.ohmyssh.top/2023/02/13/TransactionWithAfterCommit/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="北落never">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Beiluo's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="PlatformTransactionManager&TransactionAwareCacheDecorator 源码解析+问题排查 | Beiluo's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          PlatformTransactionManager&TransactionAwareCacheDecorator 源码解析+问题排查
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-02-13 14:41:31" itemprop="dateCreated datePublished" datetime="2023-02-13T14:41:31+00:00">2023-02-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2024-05-20 01:15:40" itemprop="dateModified" datetime="2024-05-20T01:15:40+00:00">2024-05-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Spring/" itemprop="url" rel="index"><span itemprop="name">Spring</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="PlatformTransactionManager-amp-TransactionAwareCacheDecorator-源码解析-问题排查"><a href="#PlatformTransactionManager-amp-TransactionAwareCacheDecorator-源码解析-问题排查" class="headerlink" title="PlatformTransactionManager&amp;TransactionAwareCacheDecorator 源码解析+问题排查"></a>PlatformTransactionManager&amp;TransactionAwareCacheDecorator 源码解析+问题排查</h1><h2 id="1-问题现象"><a href="#1-问题现象" class="headerlink" title="1.问题现象"></a>1.问题现象</h2><pre><code>在原有使用中发现原有删除缓存的操作未能正常执行。原code 如下:
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">@Transactional</span><br><span class="line">void function&#123;</span><br><span class="line">db_action();</span><br><span class="line">db_action2();</span><br><span class="line">//在上方事务提交后，进行缓存和通知其他service动作</span><br><span class="line">TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() &#123;</span><br><span class="line">           @Override</span><br><span class="line">           public void afterCommit() &#123;</span><br><span class="line">           	    deleteCache();</span><br><span class="line">               action2();</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;)   </span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure></code></pre><p>   排查思路：<br>   1.确认afterCommit 是否被调用<br>       发现被调用，但是查看缓存后没有被执行<br>   2. 了解afterCommit如何被处理<br>   3. 尝试debug transactionManager 执行部分Code，确定整体流程<br>   <span id="more"></span><br>   根据debug和阅读代码可以发现<br>   TransactionSynchronizationManager 中存储了所有当前的transaction信息，registerSynchronization就会把匿名类加入到set中。<br>   private static final ThreadLocal&lt;Set<TransactionSynchronization>&gt; synchronizations =<br>        new NamedThreadLocal&lt;&gt;(“Transaction synchronizations”);</p>
+<pre><code>根据synchronizations.get()被调用方法可以找到AbstractPlatformTransactionManager.processCommit()会对事务进行处理，包括before 和 after等操作。code如下：
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Process an actual commit.</span><br><span class="line"> * Rollback-only flags have already been checked and applied.</span><br><span class="line"> * @param status object representing the transaction</span><br><span class="line"> * @throws TransactionException in case of commit failure</span><br><span class="line"> */</span><br><span class="line">private void processCommit(DefaultTransactionStatus status) throws TransactionException &#123;</span><br><span class="line">	try &#123;</span><br><span class="line">		boolean beforeCompletionInvoked = false;</span><br><span class="line"></span><br><span class="line">		try &#123;</span><br><span class="line">			boolean unexpectedRollback = false;</span><br><span class="line">			prepareForCommit(status);</span><br><span class="line">			// 处理beforeCommit方法</span><br><span class="line">			triggerBeforeCommit(status);</span><br><span class="line">			triggerBeforeCompletion(status);</span><br><span class="line">			beforeCompletionInvoked = true;</span><br><span class="line"></span><br><span class="line">			if (status.hasSavepoint()) &#123;</span><br><span class="line">				if (status.isDebug()) &#123;</span><br><span class="line">					logger.debug(&quot;Releasing transaction savepoint&quot;);</span><br><span class="line">				&#125;</span><br><span class="line">				unexpectedRollback = status.isGlobalRollbackOnly();</span><br><span class="line">				status.releaseHeldSavepoint();</span><br><span class="line">			&#125;</span><br><span class="line">			else if (status.isNewTransaction()) &#123;</span><br><span class="line">				if (status.isDebug()) &#123;</span><br><span class="line">					logger.debug(&quot;Initiating transaction commit&quot;);</span><br><span class="line">				&#125;</span><br><span class="line">				unexpectedRollback = status.isGlobalRollbackOnly();</span><br><span class="line">				doCommit(status);</span><br><span class="line">			&#125;</span><br><span class="line">			else if (isFailEarlyOnGlobalRollbackOnly()) &#123;</span><br><span class="line">				unexpectedRollback = status.isGlobalRollbackOnly();</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			// Throw UnexpectedRollbackException if we have a global rollback-only</span><br><span class="line">			// marker but still didn&#x27;t get a corresponding exception from commit.</span><br><span class="line">			if (unexpectedRollback) &#123;</span><br><span class="line">				throw new UnexpectedRollbackException(</span><br><span class="line">						&quot;Transaction silently rolled back because it has been marked as rollback-only&quot;);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		catch (UnexpectedRollbackException ex) &#123;</span><br><span class="line">			// can only be caused by doCommit</span><br><span class="line">			triggerAfterCompletion(status, TransactionSynchronization.STATUS_ROLLED_BACK);</span><br><span class="line">			throw ex;</span><br><span class="line">		&#125;</span><br><span class="line">		catch (TransactionException ex) &#123;</span><br><span class="line">			// can only be caused by doCommit</span><br><span class="line">			if (isRollbackOnCommitFailure()) &#123;</span><br><span class="line">				doRollbackOnCommitException(status, ex);</span><br><span class="line">			&#125;</span><br><span class="line">			else &#123;</span><br><span class="line">				triggerAfterCompletion(status, TransactionSynchronization.STATUS_UNKNOWN);</span><br><span class="line">			&#125;</span><br><span class="line">			throw ex;</span><br><span class="line">		&#125;</span><br><span class="line">		catch (RuntimeException | Error ex) &#123;</span><br><span class="line">			if (!beforeCompletionInvoked) &#123;</span><br><span class="line">				triggerBeforeCompletion(status);</span><br><span class="line">			&#125;</span><br><span class="line">			doRollbackOnCommitException(status, ex);</span><br><span class="line">			throw ex;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		// Trigger afterCommit callbacks, with an exception thrown there</span><br><span class="line">		// propagated to callers but the transaction still considered as committed.</span><br><span class="line">		try &#123;</span><br><span class="line">			triggerAfterCommit(status);</span><br><span class="line">		&#125;</span><br><span class="line">		finally &#123;</span><br><span class="line">			triggerAfterCompletion(status, TransactionSynchronization.STATUS_COMMITTED);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">	finally &#123;</span><br><span class="line">		cleanupAfterCompletion(status);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></code></pre>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/Spring/" rel="tag"># Spring</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/12/01/%E8%AE%BE%E7%BD%AE%E5%90%84%E7%B1%BB%E4%BB%A3%E7%90%86/" rel="prev" title="设置各类代理">
+                  <i class="fa fa-angle-left"></i> 设置各类代理
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/02/13/Java%E7%BA%BF%E4%B8%8A%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E7%BB%8F%E9%AA%8C%E9%9B%86%E5%90%88/" rel="next" title="Java线上问题排查经验集合">
+                  Java线上问题排查经验集合 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">北落never</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"}});</script></body>
+</html>

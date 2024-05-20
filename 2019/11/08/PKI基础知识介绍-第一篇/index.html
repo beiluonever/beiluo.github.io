@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.ohmyssh.top","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="A public key infrastructure (PKI) is a set of roles, policies, and procedures needed to create, manage, distribute, use, store &amp; revoke digital certificates and manage public-key encryption. The">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PKI基础知识介绍-第一篇">
+<meta property="og:url" content="https://blog.ohmyssh.top/2019/11/08/PKI%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%BB%8B%E7%BB%8D-%E7%AC%AC%E4%B8%80%E7%AF%87/index.html">
+<meta property="og:site_name" content="Beiluo&#39;s Blog">
+<meta property="og:description" content="A public key infrastructure (PKI) is a set of roles, policies, and procedures needed to create, manage, distribute, use, store &amp; revoke digital certificates and manage public-key encryption. The">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-11-08T10:29:10.000Z">
+<meta property="article:modified_time" content="2024-05-20T01:15:40.127Z">
+<meta property="article:author" content="北落never">
+<meta property="article:tag" content="PKI">
+<meta property="article:tag" content="CA">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://blog.ohmyssh.top/2019/11/08/PKI%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%BB%8B%E7%BB%8D-%E7%AC%AC%E4%B8%80%E7%AF%87/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.ohmyssh.top/2019/11/08/PKI%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%BB%8B%E7%BB%8D-%E7%AC%AC%E4%B8%80%E7%AF%87/","path":"2019/11/08/PKI基础知识介绍-第一篇/","title":"PKI基础知识介绍-第一篇"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>PKI基础知识介绍-第一篇 | Beiluo's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Beiluo's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#PKI%E7%94%B1%E4%BB%80%E4%B9%88%E7%BB%84%E6%88%90"><span class="nav-number">1.</span> <span class="nav-text">PKI由什么组成</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E7%9A%84%E6%B4%BE%E5%87%BA%E6%89%80%E2%80%94%E2%80%94CA"><span class="nav-number">1.0.1.</span> <span class="nav-text">设备的派出所——CA</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E7%9A%84%E6%88%B7%E7%B1%8D%E6%9F%A5%E8%AF%A2%E7%AA%97%E5%8F%A3%E2%80%94%E2%80%94RA"><span class="nav-number">1.1.</span> <span class="nav-text">设备的户籍查询窗口——RA</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%B0%E5%BD%95%E7%9D%80%E4%B8%8D%E5%8F%AF%E7%94%A8%E8%AF%81%E4%B9%A6%E7%9A%84%E6%B4%BE%E5%87%BA%E6%89%80%E2%80%94%E2%80%94VA"><span class="nav-number">1.2.</span> <span class="nav-text">记录着不可用证书的派出所——VA</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">北落never</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.ohmyssh.top/2019/11/08/PKI%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%BB%8B%E7%BB%8D-%E7%AC%AC%E4%B8%80%E7%AF%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="北落never">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Beiluo's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="PKI基础知识介绍-第一篇 | Beiluo's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          PKI基础知识介绍-第一篇
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-11-08 10:29:10" itemprop="dateCreated datePublished" datetime="2019-11-08T10:29:10+00:00">2019-11-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2024-05-20 01:15:40" itemprop="dateModified" datetime="2024-05-20T01:15:40+00:00">2024-05-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/PKI/" itemprop="url" rel="index"><span itemprop="name">PKI</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>A <strong>public key infrastructure</strong> (<strong>PKI</strong>) is a set of roles, policies, and procedures needed to create, manage, distribute, use, store &amp; revoke <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Digital_certificates" title="Digital certificates">digital certificates</a> and manage public-key encryption. The purpose of a PKI is to facilitate the secure electronic transfer of information for a range of network activities such as e-commerce, internet banking and confidential email. It is required for activities where simple passwords are an inadequate authentication method and more rigorous proof is required to confirm the identity of the parties involved in the communication and to validate the information being transferred.<br>一个<strong>公共密钥基础设施</strong>（<strong>PKI</strong>）是一组角色，策略，以及创建，管理，分发所需的程序，使用，储存和吊销的<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Digital_certificates" title="数字证书">数字证书</a>和管理公共密钥加密。PKI的目的是促进电子商务，网上银行和机密电子邮件等一系列网络活动的信息安全电子传输。对于简单密码认证方法不充分的活动，需要更严格的证据来确认通信中涉及的各方的身份并验证所传输的信息。</p>
+</blockquote>
+<p>上文为WIKI对于PKI的解释，简单来说，PKI是一个基础设施，使用<strong>数字证书、密钥加密等措施来保障通信中的信息安全和身份安全。</strong>从我个人浅显的理解来说，PKI就是解决如何证明我是我、如何保证我传给A的东西其他人看不到只有A能看，而且A还能确信这是我发的。</p>
+<h1 id="PKI由什么组成"><a href="#PKI由什么组成" class="headerlink" title="PKI由什么组成"></a>PKI由什么组成</h1><h3 id="设备的派出所——CA"><a href="#设备的派出所——CA" class="headerlink" title="设备的派出所——CA"></a>设备的派出所——CA</h3><blockquote>
+<p>在<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Cryptography" title="加密">加密中</a>，<strong>证书颁发机构</strong>或<strong>证书颁发机构</strong>（<strong>CA</strong>）是<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Public_key_certificate" title="公钥证书">颁发数字证书</a>的实体。数字证书通过证书的指定主题来证明公钥的所有权。这允许其他人（依赖方）依赖<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Digital_signature" title="电子签名">签名</a>或关于与经认证的公钥对应的私钥的断言。CA充当<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Trusted_third_party" title="值得信赖的第三方">受信任的第三方 -</a>由证书的主体（所有者）和依赖证书的一方进行信任。这些证书的格式由<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/X.509" title="X.509">X.509</a>标准指定。</p>
+</blockquote>
+<p>和PKI的定义一样，它是一个基础设施，为了解决我是我的问题，引入了数字证书的概念，数字证书包括有关密钥的信息，有关其所有者身份的信息（称为主题），以及已验证证书内容的实体（称为发行者）的<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Digital_signature" title="电子签名">数字签名</a>，在我看来这就相当于现实生活中的派出所，给你颁发了一个身份证，上面有你的个人信息（所有者身份的信息），也标上是哪个派出所发的，并且做了防伪（发行者的数字签名），这样在后续和其他设备交互的时候，你就可以使用数字证书去证明你是你了。</p>
+<h2 id="设备的户籍查询窗口——RA"><a href="#设备的户籍查询窗口——RA" class="headerlink" title="设备的户籍查询窗口——RA"></a>设备的户籍查询窗口——RA</h2><blockquote>
+<p>确保有效和正确注册的PKI角色称为注册机构（RA）。RA负责接受对数字证书的请求并对发出请求的实体进行身份验证。</p>
+</blockquote>
+<p>说是户籍查询窗口并不准确，在拥有RA的PKI系统中，RA作为一个和外界交互的主要通道，负责证书的申请、审批等。在<em>PKI体系中也可以没有RA部分，直接使用SCEP进行申请服务（仅代表我所遇到的情况，如有补充欢迎评论）</em></p>
+<h2 id="记录着不可用证书的派出所——VA"><a href="#记录着不可用证书的派出所——VA" class="headerlink" title="记录着不可用证书的派出所——VA"></a>记录着不可用证书的派出所——VA</h2><blockquote>
+<p>在<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Public_key_infrastructure" title="公钥基础设施">公钥基础结构中</a>，<strong>验证机构</strong>（<strong>VA</strong>）是一个实体，它根据<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/X.509" title="X.509">X.509</a>标准和<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Request_for_Comments_(identifier)" title="征求意见（标识符）">RFC </a><a target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc5280">5280</a>（第69页）中描述的机制提供用于验证<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Public_key_certificate" title="公钥证书">数字证书</a>有效性的服务。<sup><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Validation_authority#cite_note-1">[1]</a></sup><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/X.509" title="X.509"></a><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Request_for_Comments_(identifier)" title="征求意见（标识符）"></a> <a target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc5280"></a><sup><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Validation_authority#cite_note-1"></a></sup><br>用于此目的的主要方法是托管<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Certificate_revocation_list" title="证书撤销清单">证书吊销列表，</a>以便通过<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol" title="Hypertext Transfer Protocol">HTTP</a>或<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Lightweight_Directory_Access_Protocol" title="轻量级目录访问协议">LDAP</a>协议下载。为了减少证书验证所需的网络流量，可以使用<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Online_Certificate_Status_Protocol" title="在线证书状态协议">OCSP</a>协议。<br>虽然验证机构能够响应基于网络的CRL请求，但它缺乏颁发或吊销证书的能力。必须使用颁发CRL中包含的证书的<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Certificate_authority" title="证书颁发机构">证书颁发机构的</a>当前CRL信息不断更新它。<br>虽然这是一个潜在的劳动密集型过程，但使用专用的验证机构可以动态验证<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Offline_root_certificate_authority" title="脱机根证书颁发机构">脱机根证书颁发机构</a>颁发的<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Offline_root_certificate_authority" title="脱机根证书颁发机构">证书</a>。虽然根CA本身对网络流量不可用，但始终可以通过验证机构和上述协议验证由其颁发的证书。<br>维护验证机构托管的CRL的持续管理开销通常很小，因为根CA颁发（或撤销）大量证书的情况并不常见。</p>
+</blockquote>
+<p>这部分我了解不多，现阶段我所遇到的场景更多为<strong>内置脱机根证书</strong>并且使用OCSP方式查询，简单来说，VA就是为了避免出现：你的身份证被派出所取消了，我还傻傻的相信你这一情况。</p>
+<p>本章主要是介绍PKI是什么，解决了什么问题，有哪些组成部分。后续会继续更新PKI相关的一些文章，比如SCEP是什么，OCSP，CRL又是什么，以及PKI相关技术在JAVA中的实现。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PKI/" rel="tag"># PKI</a>
+              <a href="/tags/CA/" rel="tag"># CA</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/11/05/spring-boot%E4%B8%AD%E4%BD%BF%E7%94%A8quartz%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E5%B9%B6%E8%BF%9B%E8%A1%8C%E4%BA%8B%E5%8A%A1%E7%AE%A1%E7%90%86/" rel="prev" title="Spring Boot中使用quartz定时任务并进行事务管理">
+                  <i class="fa fa-angle-left"></i> Spring Boot中使用quartz定时任务并进行事务管理
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/11/12/SpringBoot%E9%A1%B9%E7%9B%AE%E4%B8%AD%E8%A7%A3%E5%86%B3%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E4%B9%B1%E7%A0%81/" rel="next" title="SpringBoot项目中解决上传文件乱码">
+                  SpringBoot项目中解决上传文件乱码 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">北落never</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"}});</script></body>
+</html>

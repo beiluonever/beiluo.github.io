@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.ohmyssh.top","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="SpringBoot项目中MultipartFile接受数据文件乱码原因MultipartFile 在接收数据时会以系统默认的编码解码上传数据，如果系统默认的编码和页面编码不一致就会乱码。乱码其实就是当接收方和发送方的编码不一致就会出现。 单个SpringBoot项目解决方案 修改配置文件 123456789spring:  http:    encoding:      charset: UTF">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringBoot项目中解决上传文件乱码">
+<meta property="og:url" content="https://blog.ohmyssh.top/2019/11/12/SpringBoot%E9%A1%B9%E7%9B%AE%E4%B8%AD%E8%A7%A3%E5%86%B3%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E4%B9%B1%E7%A0%81/index.html">
+<meta property="og:site_name" content="Beiluo&#39;s Blog">
+<meta property="og:description" content="SpringBoot项目中MultipartFile接受数据文件乱码原因MultipartFile 在接收数据时会以系统默认的编码解码上传数据，如果系统默认的编码和页面编码不一致就会乱码。乱码其实就是当接收方和发送方的编码不一致就会出现。 单个SpringBoot项目解决方案 修改配置文件 123456789spring:  http:    encoding:      charset: UTF">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-11-12T11:07:14.000Z">
+<meta property="article:modified_time" content="2024-05-20T01:15:40.127Z">
+<meta property="article:author" content="北落never">
+<meta property="article:tag" content="SpringBoot">
+<meta property="article:tag" content="UploadFileEncode">
+<meta property="article:tag" content="上传文件乱码">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://blog.ohmyssh.top/2019/11/12/SpringBoot%E9%A1%B9%E7%9B%AE%E4%B8%AD%E8%A7%A3%E5%86%B3%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E4%B9%B1%E7%A0%81/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.ohmyssh.top/2019/11/12/SpringBoot%E9%A1%B9%E7%9B%AE%E4%B8%AD%E8%A7%A3%E5%86%B3%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E4%B9%B1%E7%A0%81/","path":"2019/11/12/SpringBoot项目中解决上传文件乱码/","title":"SpringBoot项目中解决上传文件乱码"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SpringBoot项目中解决上传文件乱码 | Beiluo's Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Beiluo's Blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#SpringBoot%E9%A1%B9%E7%9B%AE%E4%B8%ADMultipartFile%E6%8E%A5%E5%8F%97%E6%95%B0%E6%8D%AE%E6%96%87%E4%BB%B6%E4%B9%B1%E7%A0%81%E5%8E%9F%E5%9B%A0"><span class="nav-number">1.</span> <span class="nav-text">SpringBoot项目中MultipartFile接受数据文件乱码原因</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%95%E4%B8%AASpringBoot%E9%A1%B9%E7%9B%AE%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">2.</span> <span class="nav-text">单个SpringBoot项目解决方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SpringCloud%EF%BC%88%E4%BD%BF%E7%94%A8Zuul%E5%81%9A%E7%BD%91%E5%85%B3%E9%A1%B9%E7%9B%AE-%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">3.</span> <span class="nav-text">SpringCloud（使用Zuul做网关项目)解决方案</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">北落never</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.ohmyssh.top/2019/11/12/SpringBoot%E9%A1%B9%E7%9B%AE%E4%B8%AD%E8%A7%A3%E5%86%B3%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E4%B9%B1%E7%A0%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="北落never">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Beiluo's Blog">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SpringBoot项目中解决上传文件乱码 | Beiluo's Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SpringBoot项目中解决上传文件乱码
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-11-12 11:07:14" itemprop="dateCreated datePublished" datetime="2019-11-12T11:07:14+00:00">2019-11-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2024-05-20 01:15:40" itemprop="dateModified" datetime="2024-05-20T01:15:40+00:00">2024-05-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="SpringBoot项目中MultipartFile接受数据文件乱码原因"><a href="#SpringBoot项目中MultipartFile接受数据文件乱码原因" class="headerlink" title="SpringBoot项目中MultipartFile接受数据文件乱码原因"></a>SpringBoot项目中MultipartFile接受数据文件乱码原因</h2><p>MultipartFile 在接收数据时会以系统默认的编码解码上传数据，如果系统默认的编码和页面编码不一致就会乱码。乱码其实就是当接收方和发送方的编码不一致就会出现。</p>
+<h2 id="单个SpringBoot项目解决方案"><a href="#单个SpringBoot项目解决方案" class="headerlink" title="单个SpringBoot项目解决方案"></a>单个SpringBoot项目解决方案</h2><ol>
+<li><p>修改配置文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">spring:</span><br><span class="line">  http:</span><br><span class="line">    encoding:</span><br><span class="line">      charset: UTF-8</span><br><span class="line">      force: true</span><br><span class="line">      enabled: true</span><br><span class="line">server:</span><br><span class="line">  tomcat:</span><br><span class="line">    uri-encoding: UTF-8</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<ol start="2">
+<li><p>添加配置类</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">@Configuration</span><br><span class="line">public class ConfigurerAdapter extends WebMvcConfigurerAdapter &#123;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    public HttpMessageConverter&lt;String&gt; responseBodyConverter() &#123;</span><br><span class="line">        StringHttpMessageConverter converter = new StringHttpMessageConverter(</span><br><span class="line">                Charset.forName(&quot;UTF-8&quot;));</span><br><span class="line">        return converter;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void configureMessageConverters(</span><br><span class="line">            List&lt;HttpMessageConverter&lt;?&gt;&gt; converters) &#123;</span><br><span class="line">        super.configureMessageConverters(converters);</span><br><span class="line">        converters.add(responseBodyConverter());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void configureContentNegotiation(</span><br><span class="line">            ContentNegotiationConfigurer configurer) &#123;</span><br><span class="line">        configurer.favorPathExtension(false);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<ol start="3">
+<li>获取文件名时添加编码转换</li>
+</ol>
+<h2 id="SpringCloud（使用Zuul做网关项目-解决方案"><a href="#SpringCloud（使用Zuul做网关项目-解决方案" class="headerlink" title="SpringCloud（使用Zuul做网关项目)解决方案"></a>SpringCloud（使用Zuul做网关项目)解决方案</h2><p>在使用上面几步都解决不了的情况下，你最需要考虑下你当前项目的请求流程，此处提供对zuul组件上传文件乱码的解决方案。<br>官网说明：</p>
+<blockquote>
+<p>18.8 Uploading Files through Zuul<br>If you use @EnableZuulProxy, you can use the proxy paths to upload files and it should work, so long as the files are small. For large files there is an alternative path that bypasses the Spring DispatcherServlet (to avoid multipart processing) in “/zuul/*”. In other words, if you have zuul.routes.customers=/customers/<em>*, then you can POST large files to /zuul/customers/</em>. The servlet path is externalized via zuul.servletPath. If the proxy route takes you through a Ribbon load balancer, extremely large files also require elevated timeout settings, as shown in the following example:</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">application.yml</span><br><span class="line"></span><br><span class="line">hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 60000</span><br><span class="line">ribbon:</span><br><span class="line">  ConnectTimeout: 3000</span><br><span class="line">  ReadTimeout: 60000</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Note that, for streaming to work with large files, you need to use chunked encoding in the request (which some browsers do not do by default), as shown in the following example:</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ curl -v -H &quot;Transfer-Encoding: chunked&quot; \</span><br><span class="line">    -F &quot;file=@mylarge.iso&quot; localhost:9999/zuul/simple/file</span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="https://cloud.spring.io/spring-cloud-static/Greenwich.SR3/multi/multi__router_and_filter_zuul.html#_uploading_files_through_zuul">zuul uploading files</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * Path to install Zuul as a servlet (not part of Spring MVC). The servlet is more</span><br><span class="line"> * memory efficient for requests with large bodies, e.g. file uploads.</span><br><span class="line"> */</span><br><span class="line">private String servletPath = &quot;/zuul&quot;;</span><br></pre></td></tr></table></figure>
+
+<p>按照官网说明，可以将请求发送到/zuul/项目原转发路径/*，但是一般项目后期，如果要修改请求路径较为复杂。这里可以将所有请求都走此过滤。设置如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">zuul:</span><br><span class="line">	servlet-path: /</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/SpringBoot/" rel="tag"># SpringBoot</a>
+              <a href="/tags/UploadFileEncode/" rel="tag"># UploadFileEncode</a>
+              <a href="/tags/%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6%E4%B9%B1%E7%A0%81/" rel="tag"># 上传文件乱码</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/11/08/PKI%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E4%BB%8B%E7%BB%8D-%E7%AC%AC%E4%B8%80%E7%AF%87/" rel="prev" title="PKI基础知识介绍-第一篇">
+                  <i class="fa fa-angle-left"></i> PKI基础知识介绍-第一篇
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/11/14/%E8%AE%B0%E5%BD%95%E4%B8%80%E6%AC%A1%E5%8E%BB%E9%99%A4SpringSecurity-BasicAuthorizationFilter%E8%BF%87%E7%A8%8B/" rel="next" title="记录一次去除SpringSecurity BasicAuthorizationFilter的过程">
+                  记录一次去除SpringSecurity BasicAuthorizationFilter的过程 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">北落never</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"}});</script></body>
+</html>
